@@ -1,67 +1,76 @@
 package Tree;
 
-import java.util.LinkedList; //mengimpor LinkedList dari java utilities.
-import java.util.Queue; //mengimpor Queue dari java utilities.
+import java.util.LinkedList;
+import java.util.Queue;
 
-public class BinaryTree { // inisialisasi kelas bernama BinaryTree.
-    private TreeNode root; // variabel root sebagai akar dari tree.
+public class BinaryTree {
+    private TreeNode root;
 
-    BinaryTree() { // constructor.
-        this.root = null; // mengubah nilai akar menjadi null (kosong).
-    }
-
-    BinaryTree(int data) { // constructor (overloading).
+    BinaryTree() {
         this.root = null;
-        insert(data); // memanggil method insert dengan nilai masukkan data.
     }
 
-    public void insert(int data) { // method insert untuk memasukkan data ke dalam tree.
-        this.root = check(root, data); // memanggil method check dan menyimpan nilai balikannya-
-                                       // ke dalam variabel root.
+    BinaryTree(int data) {
+        this.root = null;
+        insert(data);
     }
 
-    private TreeNode check(TreeNode pointer, int data) { // method check untuk mengecek-
-                                                         // dan membandingkan nilai data.
-        TreeNode newNode = new TreeNode(data); // membuat node baru yang berisi-
-                                               // data dari parameter.
-        if (pointer == null) { // percabangan untuk mengecek apakah pointer masih kosong.
-            pointer = newNode; // membuat pointer menunjuk node baru yang telah dibuat.
-            return pointer; // mengembalikan nilai pointer.
-        } else if (data < pointer.getData()) { // mengecek apakah nilai data parameter-
-                                               // lebih kecil dari data yang dimiliki pointer.
-            pointer.setLeft(check(pointer.getLeft(), data)); // memanggil method check (rekursif) dengan parameter-
-                                                             // masukan pointer left dan data parameter sebelumnya
-                                                             // dan menjadikan nilai balik sebagai Left dari pointer.
-        } else { // jika nilai data parameter lebih besar dari data pointer.
-            pointer.setRight(check(pointer.getRight(), data)); // hampir sama seperti method rekursif sebelumnya,-
-                                                               // digunakan untuk sisi Right.
+    public int sesuatu2(int a) {
+        TreeNode temp,result=root;
+        if (a>getMaxValue()) {
+            return getMaxValue();
         }
-        return pointer; // mengembalikan nilai pointer yang belum diubah agar pointer rekursif
-                        // sebelumnya konsisten.
+        while (true) {
+            temp=search(a);
+            if (search(a)!=null) {
+                temp = search(a);
+                break;
+            }
+            a++;
+        }
+        
+        result = temp.getLeft();
+        while (temp.getRight()!=null) {
+            temp=temp.getRight();
+        }
+        return result.getData();
     }
 
-    public TreeNode search(int data) { // inisialisasi method search.
-        return look(data, root); // memanggil method look dan mengembalikan nilai balikannya.
+
+    public void insert(int data) {
+        this.root = check(root, data);
     }
 
-    private TreeNode look(int data, TreeNode pointer) { // inisialisasi method look.
-        if (pointer.getData() == data) { // kondisi jika data milik pointer sama dengan data yang dicari.
-            return pointer; // mengembalikan nilai pointer.
+    private TreeNode check(TreeNode pointer, int data) {
+        TreeNode newNode = new TreeNode(data);
+        if (pointer == null) {
+            pointer = newNode;
+            return pointer;
+        } else if (data < pointer.getData()) {
+            pointer.setLeft(check(pointer.getLeft(), data));
+        } else {
+            pointer.setRight(check(pointer.getRight(), data));
+        }
+        return pointer;
+    }
+
+    public TreeNode search(int data) {
+        return look(data, root);
+    }
+
+    private TreeNode look(int data, TreeNode pointer) {
+        if (pointer.getData() == data) {
+            return pointer;
         }
 
-        if (pointer.getRight() != null // kondisi jika child node kanan tidak kosong,
-                && data >= pointer.getData()) { // kondisi jika data yang dicari lebih besar dari data milik pointer.
-
-            return look(data, pointer.getRight()); // memanggil method look secara rekursif dan mengembalikan nilai
-                                                   // balikannya.
-        } else if (pointer.getLeft() != null // kondisi jika child node kiri tidak kosong,
-                && data < pointer.getData()) { // kondisi jika data yang dicari lebih besar dari data milik pointer.
-
-            return look(data, pointer.getLeft()); // memanggil method look secara rekursif dan mengembalikan nilai
-                                                  // balikannya.
+        if (pointer.getRight() != null
+                && data >= pointer.getData()) {
+            return look(data, pointer.getRight());
+        } else if (pointer.getLeft() != null
+                && data < pointer.getData()) {
+            return look(data, pointer.getLeft());
         }
-
-        return null; // mengembalikan nilai kosong jika data yang dicari tidak ditemukan.
+        return null;
     }
 
     public boolean delete(int data) {
@@ -69,7 +78,6 @@ public class BinaryTree { // inisialisasi kelas bernama BinaryTree.
                 parent = root,
                 successor = null,
                 temp = null;
-        // look for
         while (current != null) {
             if (data < current.getData()) {
                 parent = current;
@@ -85,7 +93,7 @@ public class BinaryTree { // inisialisasi kelas bernama BinaryTree.
         if (current == null) {
             return false;
         }
-        
+
         if (current.getLeft() != null && current.getRight() != null) {
             successor = current.getRight();
             while (successor.getLeft() != null) {
@@ -97,68 +105,117 @@ public class BinaryTree { // inisialisasi kelas bernama BinaryTree.
             return true;
 
         } else if (current.getLeft() != null) {
-            successor = current.getLeft();
+            temp = current.getLeft();
         } else if (current.getRight() != null) {
-            successor = current.getRight();
+            temp = current.getRight();
         }
 
         if (parent.getLeft() == current) {
-            parent.setLeft(successor);
+            parent.setLeft(temp);
         } else {
-            parent.setRight(successor);
+            parent.setRight(temp);
         }
         return true;
+
     }
 
-    public void levelOrder() { // inisialisasi method levelOrder.
-        Queue<TreeNode> queue = new LinkedList<TreeNode>(); // membuat queue baru bernama queue.
-        TreeNode temp; // membuat variabel temporary sebagai penyimpanan sementara.
-        queue.add(root); // menambah nilai root ke dalam queue.
-        while (!queue.isEmpty()) { // perulangan yang akan berhenti saat queue kosong.
-            temp = queue.peek(); // menyimpan urutan pertama dalam queue ke dalam variabel temp
-            System.out.print(queue.poll() + " "); // mencetak urutan pertama dan mengeluarkannya dari queue
-            if (temp.getLeft() != null) { // kondisi jika child node kiri dari temp tidak kosong.
-                queue.add(temp.getLeft()); // menambahkan child node kiri dari temp ke dalam queue.
+    public int getMaxValue() {
+        return getMaxValue(root);
+    }
+
+    public int getMaxValue(TreeNode node) {
+        if (node.getRight() == null) return node.getData();
+        else return getMaxValue(node.getRight());
+    }
+
+    public int getMinValue() {
+        return getMinValue(root);
+    }
+
+    public int getMinValue(TreeNode node) {
+        if (node.getLeft() == null) return node.getData();
+        else return getMinValue(node.getLeft());
+        
+    }
+
+    public TreeNode getPredecessor(int data) {
+        return getPredecessor(search(data));
+    }
+
+    public TreeNode getPredecessor(TreeNode node) {
+        node = node.getLeft();
+        while (node.getRight() != null) node = node.getRight();
+        return node;
+    }
+
+    public int getSize() {
+        return getSize(root);
+    }
+
+    private int getSize(TreeNode node) {
+        if (node==null) return 0;
+        return getSize(node.getLeft())+getSize(node.getRight())+1;
+    }
+
+    public int getHeight(TreeNode node) {
+        if (node==null) return 0;
+        return Math.max(1+getHeight(node.getLeft()), 1+getHeight(node.getRight()));
+    }
+
+    public boolean isComplete() {
+        if (getSize(root)==Math.pow(2,getHeight(root))-1) return true;
+        return false;
+    }
+
+    public void levelOrder() {
+        Queue<TreeNode> queue = new LinkedList<TreeNode>();
+        TreeNode temp;
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            temp = queue.peek();
+            System.out.print(queue.poll() + " ");
+            if (temp.getLeft() != null) {
+                queue.add(temp.getLeft());
             }
-            if (temp.getRight() != null) { // kondisi jika child node kanan dari temp tidak kosong.
-                queue.add(temp.getRight()); // menambahkan child node kanan dari temp ke dalam queue.
+            if (temp.getRight() != null) {
+                queue.add(temp.getRight());
             }
         }
     }
 
-    public void inOrder() { // inisialisasi method inOrder.
-        inOrder(root); // memanggil method inOrder dengan parameter root.
+    public void inOrder() {
+        inOrder(root);
     }
 
-    private void inOrder(TreeNode pointer) { // inisialisasi method inOrder.
-        if (pointer != null) { // kondisi jika pointer tidak kosong.
-            inOrder(pointer.getLeft()); // memanggil method inOrder secara rekursif.
-            System.out.print(pointer + " "); // mencetak pointer.
-            inOrder(pointer.getRight()); // memanggil method inOrder secara rekursif.
+    private void inOrder(TreeNode pointer) {
+        if (pointer != null) {
+            inOrder(pointer.getLeft());
+            System.out.print(pointer + " ");
+            inOrder(pointer.getRight());
         }
     }
 
-    public void preOrder() { // inisialisasi method preOrder.
-        preOrder(root); // memanggil method preOrder dengan parameter root.
+    public void preOrder() {
+        preOrder(root);
     }
 
-    private void preOrder(TreeNode pointer) { // inisialisasi method preOrder.
-        if (pointer != null) { // kondisi jika pointer tidak kosong.
-            System.out.print(pointer + " "); // mencetak pointer.
-            preOrder(pointer.getLeft()); // memanggil method preOrder secara rekursif.
-            preOrder(pointer.getRight()); // memanggil method preOrder secara rekursif.
+    private void preOrder(TreeNode pointer) {
+        if (pointer != null) {
+            System.out.print(pointer + " ");
+            preOrder(pointer.getLeft());
+            preOrder(pointer.getRight());
         }
     }
 
-    public void postOrder() { // inisialisasi method postOrder.
-        postOrder(root); // memanggil method postOrder dengan parameter root.
+    public void postOrder() {
+        postOrder(root);
     }
 
-    private void postOrder(TreeNode pointer) { // inisialisasi method postOrder.
-        if (pointer != null) { // kondisi jika pointer tidak kosong.
-            postOrder(pointer.getLeft()); // memanggil method postOrder secara rekursif.
-            postOrder(pointer.getRight()); // memanggil method postOrder secara rekursif.
-            System.out.print(pointer + " "); // mencetak pointer.
+    private void postOrder(TreeNode pointer) {
+        if (pointer != null) {
+            postOrder(pointer.getLeft());
+            postOrder(pointer.getRight());
+            System.out.print(pointer + " ");
         }
     }
 
@@ -172,41 +229,41 @@ public class BinaryTree { // inisialisasi kelas bernama BinaryTree.
 
 }
 
-class TreeNode { // inisialisasi kelas bernama TreeNode.
-    private TreeNode left; // variabel left untuk menunjuk child node bagian kiri.
-    private TreeNode right; // variabel right untuk menunjuk child node bagian kanan.
-    private int data; // variabel data untuk menyimpan data.
+class TreeNode {
+    private TreeNode left;
+    private TreeNode right;
+    private int data;
 
-    TreeNode(int data) { // constructor.
-        this.data = data; // menyimpan nilai data parameter ke dalam variabel data.
+    TreeNode(int data) {
+        this.data = data;
     }
 
-    public void setData(int data) { // inisialisasi method setData.
-        this.data = data; // menyimpan nilai data parameter ke dalam variabel data.
+    public void setData(int data) {
+        this.data = data;
     }
 
-    public void setLeft(TreeNode left) { // inisialisasi method setLeft.
-        this.left = left; // membuat variabel left menunjuk node parameter masukan.
+    public void setLeft(TreeNode left) {
+        this.left = left;
     }
 
-    public void setRight(TreeNode right) { // inisialisasi method setRight.
-        this.right = right; // membuat variabel right menunjuk node parameter masukan.
+    public void setRight(TreeNode right) {
+        this.right = right;
     }
 
-    public int getData() { // inisialisasi method getData.
-        return data; // mengembalikan nilai variabel data.
+    public int getData() {
+        return data;
     }
 
-    public TreeNode getLeft() { // inisialisasi method getLeft.
-        return left; // mengembalikan nilai variabel left.
+    public TreeNode getLeft() {
+        return left;
     }
 
-    public TreeNode getRight() { // inisialisasi method getRight.
-        return right; // mengembalikan nilai variabel right.
+    public TreeNode getRight() {
+        return right;
     }
 
-    public String toString() { // inisialisasi method toString
-        return "" + data; // mengembalikan nilai variabel data dengan format string;
+    public String toString() {
+        return "" + data;
     }
 
     public void printDrawnStructure() {
