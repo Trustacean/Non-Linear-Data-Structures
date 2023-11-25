@@ -137,7 +137,6 @@ public class Graph {
                 vertex = i;
             }
         }
-        // Returning the vertex with smallest edge weight
         return vertex;
     }
 
@@ -155,13 +154,15 @@ public class Graph {
             mst[vertex] = true;
 
             for (int j = 0; j < vertexList.size(); j++) {
-                if (adjMatrix.get(vertex).get(j) > 0 && !mst[j] && adjMatrix.get(vertex).get(j) < key[j]) {
+                if (adjMatrix.get(vertex).get(j) > 0 &&
+                    !mst[j] && 
+                    adjMatrix.get(vertex).get(j) < key[j]) {
                     mstEdges[j - 1] = new Edge(vertex, j, adjMatrix.get(vertex).get(j));
                     key[j] = adjMatrix.get(vertex).get(j);
                 }
             }
         }
-
+        
         Arrays.sort(mstEdges, Comparator.comparingInt(edge -> (edge != null) ? edge.vertex1 : Integer.MAX_VALUE));
 
         printPrimMST(mstEdges);
@@ -252,12 +253,6 @@ public class Graph {
         theGraph.addVertex("H"); // 7
         theGraph.addVertex("I"); // 8
         theGraph.addVertex("J"); // 9
-        System.out.println("Daftar Vertex : ");
-        for (int i = 0; i < theGraph.size(); i++) {
-            System.out.print(theGraph.displayVertex(i) + " ");
-        }
-        System.out.println();
-
         theGraph.addEdge(0, 1, 5); // AB
         theGraph.addEdge(0, 2, 5); // AC
         theGraph.addEdge(1, 3, 4); // BD
