@@ -8,12 +8,12 @@ import java.util.PriorityQueue;
 import java.util.Stack;
 import java.util.Queue;
 
-public class Graph {
+public class DirectedGraph {
     ArrayList<ArrayList<Integer>> adjMatrix;
     ArrayList<Vertex> vertexList;
     ArrayList<Edge> edgeList;
 
-    public Graph() {
+    public DirectedGraph() {
         vertexList = new ArrayList<Vertex>();
         adjMatrix = new ArrayList<ArrayList<Integer>>();
         edgeList = new ArrayList<Edge>();
@@ -50,7 +50,6 @@ public class Graph {
     public void addEdge(int source, int target, int weight) {
         // perbarui relasi antar vertex dalam matriks
         adjMatrix.get(source).set(target, weight);
-        adjMatrix.get(target).set(source, weight);
         edgeList.add(new Edge(source, target, weight));
     }
 
@@ -127,122 +126,35 @@ public class Graph {
         System.out.println();
     }
 
-    int getMinimumVertex(boolean[] mst, int[] key) {
-        int minKey = Integer.MAX_VALUE;
-        int vertex = -1;
-        for (int i = 0; i < vertexList.size(); i++) {
-            // Neighboring vertex havent visited and the weight is lesser
-            if (mst[i] == false && minKey > key[i]) {
-                minKey = key[i];
-                vertex = i;
-            }
-        }
-        return vertex;
-    }
-
-    public void primMST() {
-        boolean[] mst = new boolean[vertexList.size()];
-        int[] key = new int[vertexList.size()];
-        Edge[] mstEdges = new Edge[vertexList.size() - 1];
-
-        Arrays.fill(key, Integer.MAX_VALUE);
-
-        key[0] = 0;
-
-        for (int i = 0; i < vertexList.size() - 1; i++) {
-            int vertex = getMinimumVertex(mst, key);
-            mst[vertex] = true;
-
-            for (int j = 0; j < vertexList.size(); j++) {
-                if (adjMatrix.get(vertex).get(j) > 0 &&
-                    !mst[j] && 
-                    adjMatrix.get(vertex).get(j) < key[j]) {
-                    mstEdges[j - 1] = new Edge(vertex, j, adjMatrix.get(vertex).get(j));
-                    key[j] = adjMatrix.get(vertex).get(j);
-                }
-            }
-        }
-        
-        Arrays.sort(mstEdges, Comparator.comparingInt(edge -> (edge != null) ? edge.vertex1 : Integer.MAX_VALUE));
-
-        printPrimMST(mstEdges);
-    }
-
-    void printPrimMST(Edge[] primMst) {
-        int totalMinWeight = 0;
-        System.out.println("Minimum Spanning Tree: ");
-
-        for (int i = 0; i < primMst.length; i++) {
-            if (primMst[i] != null) {
-                System.out.println(
-                        "Edge: " + vertexList.get(primMst[i].vertex1).getLabel() +
-                                " - " + vertexList.get(primMst[i].vertex2).getLabel() +
-                                " Weight: " + primMst[i].weight);
-                totalMinWeight += primMst[i].weight;
-            }
-        }
-        System.out.println("Total minimum weight: " + totalMinWeight);
-    }
-
-    public void kruskalMST() {
-        PriorityQueue<Edge> pq = new PriorityQueue<>(edgeList.size(), Comparator.comparingInt(o -> o.weight));
-        int[] parent = new int[vertexList.size()];
-        ArrayList<Edge> mstEdges = new ArrayList<>();
-
-        for (int i = 0; i < edgeList.size(); i++) {
-            pq.add(edgeList.get(i));
-        }
+    public void topologicalSort() {
+        Stack<Vertex> stack = new Stack<Vertex>();
 
         for (int i = 0; i < vertexList.size(); i++) {
-            parent[i] = i;
-        }
-
-        while (!pq.isEmpty() && mstEdges.size() < vertexList.size() - 1) {
-            Edge edge = pq.poll();
-            int root1 = find(parent, edge.vertex1);
-            int root2 = find(parent, edge.vertex2);
-
-            // If including this edge does not cause a cycle, add it to the MST
-            if (root1 != root2) {
-                mstEdges.add(edge);
-                union(parent, root1, root2);
+            if (!vertexList.get(i).visited) {
+                topologicalDFS(i, stack);
             }
         }
 
-        printKruskalMST(mstEdges);
-
-    }
-
-    // Union-Find (Disjoint Set) Operations
-    private int find(int[] parent, int vertex) {
-        if (parent[vertex] != vertex) {
-            parent[vertex] = find(parent, parent[vertex]); // Path compression
+        while (!stack.isEmpty()) {
+            System.out.print(stack.pop().getLabel()+" ");
         }
-        return parent[vertex];
+        System.out.println();
+        setAllVisitedToFalse();
     }
 
-    private void union(int[] parent, int x, int y) {
-        int rootX = find(parent, x);
-        int rootY = find(parent, y);
-        parent[rootX] = rootY;
-    }
+    private void topologicalDFS(int vertex, Stack<Vertex> stack) {
+        vertexList.get(vertex).visited = true;
 
-    void printKruskalMST(ArrayList<Edge> kruskalMST) {
-        int totalMinWeight = 0;
-        System.out.println("Minimum Spanning Tree: ");
-
-        for (Edge edge : kruskalMST) {
-            System.out.println(
-                    "Edge: " + vertexList.get(edge.vertex1).getLabel() +
-                            " - " + vertexList.get(edge.vertex2).getLabel() +
-                            " Weight: " + edge.weight);
-            totalMinWeight += edge.weight;
+        for (int i = 0; i < vertexList.size(); i++) {
+            if (adjMatrix.get(vertex).get(i)!=0 && !vertexList.get(i).visited) {
+                topologicalDFS(i, stack);
+            }
         }
-        System.out.println("Total minimum weight: " + totalMinWeight);
+        stack.push(vertexList.get(vertex));
     }
 
     public static void main(String[] args) {
-        Graph theGraph = new Graph();
+        DirectedGraph theGraph = new DirectedGraph();
         theGraph.addVertex("J1"); // 0
         theGraph.addVertex("J2"); // 1
         theGraph.addVertex("J3"); // 2
@@ -262,11 +174,10 @@ public class Graph {
 
         System.out.println("Matrik adjacency");
         theGraph.display();
-
+        theGraph.topologicalSort();
     }
 
-    public void topologicalSort() {
-    }
+
 }
 
 class Vertex {
