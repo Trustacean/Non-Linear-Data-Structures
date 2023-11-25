@@ -183,7 +183,62 @@ public class Graph {
         System.out.println("Total minimum weight: " + totalMinWeight);
     }
 
-    
+    public void kruskalMST() {
+        PriorityQueue<Edge> pq = new PriorityQueue<>(edgeList.size(), Comparator.comparingInt(o -> o.weight));
+        int[] parent = new int[vertexList.size()];
+        ArrayList<Edge> mstEdges = new ArrayList<>();
+
+        for (int i = 0; i < edgeList.size(); i++) {
+            pq.add(edgeList.get(i));
+        }
+
+        for (int i = 0; i < vertexList.size(); i++) {
+            parent[i] = i;
+        }
+
+        while (!pq.isEmpty() && mstEdges.size() < vertexList.size() - 1) {
+            Edge edge = pq.poll();
+            int root1 = find(parent, edge.vertex1);
+            int root2 = find(parent, edge.vertex2);
+
+            // If including this edge does not cause a cycle, add it to the MST
+            if (root1 != root2) {
+                mstEdges.add(edge);
+                union(parent, root1, root2);
+            }
+        }
+
+        printKruskalMST(mstEdges);
+
+    }
+
+    // Union-Find (Disjoint Set) Operations
+    private int find(int[] parent, int vertex) {
+        if (parent[vertex] != vertex) {
+            parent[vertex] = find(parent, parent[vertex]); // Path compression
+        }
+        return parent[vertex];
+    }
+
+    private void union(int[] parent, int x, int y) {
+        int rootX = find(parent, x);
+        int rootY = find(parent, y);
+        parent[rootX] = rootY;
+    }
+
+    void printKruskalMST(ArrayList<Edge> kruskalMST) {
+        int totalMinWeight = 0;
+        System.out.println("Minimum Spanning Tree: ");
+
+        for (Edge edge : kruskalMST) {
+            System.out.println(
+                    "Edge: " + vertexList.get(edge.vertex1).getLabel() +
+                            " - " + vertexList.get(edge.vertex2).getLabel() +
+                            " Weight: " + edge.weight);
+            totalMinWeight += edge.weight;
+        }
+        System.out.println("Total minimum weight: " + totalMinWeight);
+    }
 
     public static void main(String[] args) {
         Graph theGraph = new Graph();
@@ -225,6 +280,8 @@ public class Graph {
         System.out.println("Matrik adjacency");
         theGraph.display();
         theGraph.primMST();
+        System.out.println();
+        theGraph.kruskalMST();
 
     }
 }
